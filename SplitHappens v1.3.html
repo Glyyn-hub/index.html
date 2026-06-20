@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Split Happens</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #101010;
+      --panel: #1b1b1b;
+      --panel2: #242424;
+      --text: #eeeeee;
+      --muted: #a5a5a5;
+      --line: #333;
+      --accent: #b96546;
+      --amber: #d6a21a;
+      --green: #75a87d;
+      --bad: #c95f5f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, Arial, sans-serif;
+      padding: 34px;
+    }
+
+    .app { max-width: 1280px; margin: auto; }
+
+    h1 {
+      font-size: 46px;
+      margin: 0;
+      letter-spacing: -1.5px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      letter-spacing: -0.4px;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: var(--muted);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 8px 0 30px;
+    }
+
+    .step-label {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+    }
+
+    .hero {
+      border-color: rgba(185,101,70,.65);
+      background: radial-gradient(circle at top left, rgba(185,101,70,.22), transparent 35%), var(--panel);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: #0e0e0e;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin: 6px 0 14px;
+      font-family: inherit;
+    }
+
+    textarea { height: 165px; }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      margin: 4px 6px 4px 0;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: inherit;
+    }
+
+    button.secondary {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+    }
+
+    button.danger { background: var(--bad); }
+
+    button:hover { opacity: .9; }
+
+    .muted { color: var(--muted); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .ok-pill { background: rgba(117,168,125,.18); color: var(--green); }
+    .review-pill { background: rgba(214,162,26,.18); color: var(--amber); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    tr.review-row { background: rgba(214,162,26,.045); }
+
+    .split-preview {
+      color: var(--muted);
+      max-width: 420px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      font-family: inherit;
+      line-height: 1.65;
+    }
+
+    .settlement-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .settlement-card {
+      background: #111;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .settlement-card strong {
+      font-size: 20px;
+    }
+
+    .amount {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 22px;
+      margin-top: 8px;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -470px;
+      width: 470px;
+      height: 100vh;
+      background: #181818;
+      border-left: 1px solid var(--line);
+      box-shadow: -20px 0 60px rgba(0,0,0,.45);
+      padding: 26px;
+      transition: right .22s ease;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .drawer.open { right: 0; }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .person-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 16px;
+    }
+
+    .person-pill {
+      border: 1px solid var(--line);
+      background: #101010;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 12px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .person-pill.selected {
+      background: rgba(185,101,70,.22);
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .warning {
+      background: rgba(214,162,26,.12);
+      border: 1px solid rgba(214,162,26,.35);
+      color: #f1d28a;
+      padding: 12px;
+      border-radius: 14px;
+      margin: 12px 0;
+    }
+
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 9;
+    }
+
+    .drawer-backdrop.open { display: block; }
+
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+      .grid { grid-template-columns: 1fr; }
+      .drawer { width: 100%; right: -100%; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <h1>Split Happens</h1>
+  <div class="subtitle">For financially traumatised group trips.</div>
+
+  <div class="card">
+    <label class="muted">Trip name</label>
+    <input id="tripName" placeholder="e.g. Portugal 2026" oninput="autoSave()">
+  </div>
+
+  <div class="card">
+    <div class="step-label">Step 1</div>
+    <h2>Start here</h2>
+
+    <div class="grid">
+      <div>
+        <h3>Import expenses</h3>
+        <p class="muted">One expense per line. Missing data will be flagged.</p>
+        <textarea id="pasteBox" placeholder="Dinner JRGC €110.50 (James)"></textarea>
+        <button onclick="importExpenses()">Import expenses</button>
+        <button class="secondary" onclick="clearImportBox()">Clear import box</button>
+      </div>
+
+      <div>
+        <h3>Add expense</h3>
+        <input id="desc" placeholder="Description">
+        <input id="amount" type="number" step="0.01" placeholder="Amount">
+        <select id="currency">
+          <option value="EUR">€ EUR</option>
+          <option value="GBP">£ GBP</option>
+        </select>
+        <input id="paidBy" placeholder="Paid by e.g. James">
+        <button onclick="addExpense()">Add expense</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="step-label">Step 2</div>
+    <h2>Review</h2>
+    <pre id="reviewQueue" class="muted">No review rows yet.</pre>
+  </div>
+
+  <div class="card">
+    <h2>Transactions</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Paid by</th>
+          <th>Split</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="expenseTable"></tbody>
+    </table>
+  </div>
+
+  <div class="card hero">
+    <div class="step-label">Step 3</div>
+    <h2>Settle up</h2>
+
+    <label class="muted">How should people settle?</label>
+    <select id="settlementMode" onchange="autoSave()">
+      <option value="separate">Keep EUR and GBP separate</option>
+      <option value="GBP">Settle everything in GBP</option>
+      <option value="EUR">Settle everything in EUR</option>
+    </select>
+
+    <label class="muted">Agreed rate</label>
+    <input id="eurToGbpRate" type="number" step="0.0001" value="0.86" placeholder="1 EUR = GBP" oninput="autoSave()">
+
+    <button onclick="calculate()">Calculate</button>
+    <button class="secondary" onclick="saveTrip()">Save locally</button>
+    <button class="secondary" onclick="loadTrip()">Load</button>
+    <button class="danger" onclick="clearAll()">Clear all</button>
+
+    <div id="settlementCards" class="settlement-grid"></div>
+
+    <h3 style="margin-top:22px;">Details</h3>
+    <pre id="output" class="muted">Import or add expenses, review anything suspicious, then calculate.</pre>
+  </div>
+
+</div>
+
+<div id="drawerBackdrop" class="drawer-backdrop" onclick="closeDrawer()"></div>
+
+<div id="editDrawer" class="drawer">
+  <div class="drawer-header">
+    <h2>Edit transaction</h2>
+    <button class="secondary" onclick="closeDrawer()">Close</button>
+  </div>
+
+  <div id="drawerWarning"></div>
+
+  <label class="muted">Description</label>
+  <input id="editDesc">
+
+  <label class="muted">Amount</label>
+  <input id="editAmount" type="number" step="0.01">
+
+  <label class="muted">Currency</label>
+  <select id="editCurrency">
+    <option value="EUR">€ EUR</option>
+    <option value="GBP">£ GBP</option>
+  </select>
+
+  <label class="muted">Paid by</label>
+  <input id="editPaidBy">
+
+  <label>
+    <input id="editAllowJointPayer" type="checkbox" style="width:auto">
+    Allow joint payer
+  </label>
+
+  <h2 style="margin-top:24px;">Split between</h2>
+  <div id="editPeople" class="person-pills"></div>
+
+  <label class="muted">Add names, comma-separated</label>
+  <input id="editCustomSplit" placeholder="e.g. Paul, Steph">
+
+  <button onclick="saveEdit()">Save changes</button>
+  <button class="danger" onclick="deleteCurrentlyEditing()">Delete</button>
+</div>
+
+<script>
+let knownPeople = ["James", "Rosie", "Gary", "Carling", "Laura", "Charlie", "Steph", "Arantxa", "Paul"];
+
+const peopleMap = {
+  J: "James",
+  R: "Rosie",
+  G: "Gary",
+  C: "Carling",
+  L: "Laura",
+  X: "Charlie"
+};
+
+let expenses = [];
+let editingIndex = null;
+let drawerSelectedPeople = [];
+
+function normaliseName(name) {
+  if (!name) return "";
+  return name.trim().toLowerCase().split(" ")
+    .map(word => word === "and" ? "and" : word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function normaliseNameList(text) {
+  return text.split(",").map(n => normaliseName(n)).filter(Boolean);
+}
+
+function addKnownPeople(names) {
+  names.forEach(name => {
+    if (name && !knownPeople.includes(name)) knownPeople.push(name);
+  });
+}
+
+function expandSplit(code) {
+  if (!code || code.trim() === "") code = "JRGCLX";
+  return code.trim().toUpperCase().split("").map(l => peopleMap[l]).filter(Boolean);
+}
+
+function getReviewReason(expense) {
+  const reasons = [];
+  if (!expense.description) reasons.push("Missing description");
+  if (!expense.amount) reasons.push("Missing amount");
+  if (!expense.paidBy) reasons.push("Missing payer");
+  if (!expense.splitBetween || expense.splitBetween.length === 0) reasons.push("Nobody selected in split");
+
+  if (expense.paidBy && expense.paidBy.toLowerCase().includes(" and ") && !expense.allowJointPayer) {
+    reasons.push("Payer contains 'and' — confirm joint payer or choose one person");
+  }
+
+  return reasons.join("; ");
+}
+
+function isValidExpense(expense) {
+  return getReviewReason(expense) === "";
+}
+
+function addExpense() {
+  const expense = {
+    description: document.getElementById("desc").value.trim(),
+    amount: parseFloat(document.getElementById("amount").value),
+    currency: document.getElementById("currency").value,
+    paidBy: normaliseName(document.getElementById("paidBy").value),
+    splitBetween: knownPeople.slice(0, 6),
+    allowJointPayer: false
+  };
+
+  expenses.push(expense);
+  renderAll();
+  autoSave();
+
+  document.getElementById("desc").value = "";
+  document.getElementById("amount").value = "";
+  document.getElementById("paidBy").value = "";
+}
+
+function importExpenses() {
+  const lines = document.getElementById("pasteBox").value
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  lines.forEach(line => {
+    const paidByMatch = line.match(/\(([^)]+)\)/);
+    const amountMatch = line.match(/([€£])\s?([0-9]+(?:\.[0-9]+)?)/);
+
+    let paidBy = paidByMatch ? normaliseName(paidByMatch[1]) : "";
+    let currency = amountMatch ? (amountMatch[1] === "€" ? "EUR" : "GBP") : "EUR";
+    let amount = amountMatch ? parseFloat(amountMatch[2]) : null;
+
+    let beforeAmount = amountMatch
+      ? line.substring(0, amountMatch.index).trim()
+      : line.replace(/\(([^)]+)\)/, "").trim();
+
+    let parts = beforeAmount.split(" ").filter(Boolean);
+    let possibleCode = parts.length ? parts[parts.length - 1].toUpperCase() : "";
+    let splitBetween = expandSplit("");
+    let descriptionParts = parts;
+
+    if (/^[JRGCLX]+$/.test(possibleCode)) {
+      splitBetween = expandSplit(possibleCode);
+      descriptionParts = parts.slice(0, -1);
+    }
+
+    expenses.push({
+      description: descriptionParts.join(" ") || line,
+      amount,
+      currency,
+      paidBy,
+      splitBetween,
+      allowJointPayer: false
+    });
+  });
+
+  renderAll();
+  autoSave();
+}
+
+function clearImportBox() {
+  document.getElementById("pasteBox").value = "";
+}
+
+function renderAll() {
+  renderTable();
+  renderReviewQueue();
+}
+
+function renderReviewQueue() {
+  const queue = expenses
+    .map((e, i) => ({ ...e, index: i, reason: getReviewReason(e) }))
+    .filter(e => e.reason);
+
+  const box = document.getElementById("reviewQueue");
+
+  if (!queue.length) {
+    box.textContent = "No review rows. Weirdly peaceful.";
+    return;
+  }
+
+  box.textContent = queue.map(e => `#${e.index + 1} ${e.description}: ${e.reason}`).join("\n");
+}
+
+function renderTable() {
+  const table = document.getElementById("expenseTable");
+  table.innerHTML = "";
+
+  expenses.forEach((expense, index) => {
+    const reason = getReviewReason(expense);
+    const valid = !reason;
+    const row = document.createElement("tr");
+    row.className = valid ? "" : "review-row";
+
+    row.innerHTML = `
+      <td>${valid ? `<span class="pill ok-pill">OK</span>` : `<span class="pill review-pill">Review</span>`}</td>
+      <td>${escapeHtml(expense.description || "Untitled")}</td>
+      <td>${expense.amount ? `${expense.currency} ${expense.amount.toFixed(2)}` : "Missing"}</td>
+      <td>${escapeHtml(expense.paidBy || "Missing")}</td>
+      <td class="split-preview">${expense.splitBetween.join(", ")}</td>
+      <td><button class="secondary" onclick="openDrawer(${index})">Edit</button></td>
+    `;
+
+    table.appendChild(row);
+  });
+}
+
+function openDrawer(index) {
+  editingIndex = index;
+  const expense = expenses[index];
+  drawerSelectedPeople = [...expense.splitBetween];
+
+  document.getElementById("editDesc").value = expense.description || "";
+  document.getElementById("editAmount").value = expense.amount || "";
+  document.getElementById("editCurrency").value = expense.currency || "EUR";
+  document.getElementById("editPaidBy").value = expense.paidBy || "";
+  document.getElementById("editAllowJointPayer").checked = !!expense.allowJointPayer;
+  document.getElementById("editCustomSplit").value = "";
+
+  renderDrawerPeople();
+
+  const reason = getReviewReason(expense);
+  document.getElementById("drawerWarning").innerHTML = reason
+    ? `<div class="warning">${reason}</div>`
+    : "";
+
+  document.getElementById("editDrawer").classList.add("open");
+  document.getElementById("drawerBackdrop").classList.add("open");
+}
+
+function closeDrawer() {
+  editingIndex = null;
+  document.getElementById("editDrawer").classList.remove("open");
+  document.getElementById("drawerBackdrop").classList.remove("open");
+}
+
+function renderDrawerPeople() {
+  const box = document.getElementById("editPeople");
+  box.innerHTML = "";
+
+  knownPeople.forEach(person => {
+    const selected = drawerSelectedPeople.includes(person);
+    box.innerHTML += `
+      <span class="person-pill ${selected ? "selected" : ""}" onclick="toggleDrawerPerson('${person}')">
+        ${person}
+      </span>
+    `;
+  });
+}
+
+function toggleDrawerPerson(person) {
+  if (drawerSelectedPeople.includes(person)) {
+    drawerSelectedPeople = drawerSelectedPeople.filter(p => p !== person);
+  } else {
+    drawerSelectedPeople.push(person);
+  }
+  renderDrawerPeople();
+}
+
+function saveEdit() {
+  if (editingIndex === null) return;
+
+  const typedPeople = normaliseNameList(document.getElementById("editCustomSplit").value);
+  addKnownPeople(typedPeople);
+
+  const splitBetween = Array.from(new Set([...drawerSelectedPeople, ...typedPeople]));
+
+  expenses[editingIndex] = {
+    ...expenses[editingIndex],
+    description: document.getElementById("editDesc").value.trim(),
+    amount: parseFloat(document.getElementById("editAmount").value),
+    currency: document.getElementById("editCurrency").value,
+    paidBy: normaliseName(document.getElementById("editPaidBy").value),
+    splitBetween,
+    allowJointPayer: document.getElementById("editAllowJointPayer").checked
+  };
+
+  closeDrawer();
+  renderAll();
+  autoSave();
+}
+
+function deleteCurrentlyEditing() {
+  if (editingIndex === null) return;
+  expenses.splice(editingIndex, 1);
+  closeDrawer();
+  renderAll();
+  autoSave();
+}
+
+function convertAmount(amount, fromCurrency, targetCurrency, eurToGbpRate) {
+  if (fromCurrency === targetCurrency) return amount;
+  if (fromCurrency === "EUR" && targetCurrency === "GBP") return amount * eurToGbpRate;
+  if (fromCurrency === "GBP" && targetCurrency === "EUR") return amount / eurToGbpRate;
+  return amount;
+}
+
+function calculate() {
+  const invalidRows = expenses.filter(e => !isValidExpense(e));
+  const validExpenses = expenses.filter(isValidExpense);
+
+  const settlementMode = document.getElementById("settlementMode").value;
+  const eurToGbpRate = parseFloat(document.getElementById("eurToGbpRate").value);
+
+  if ((settlementMode === "GBP" || settlementMode === "EUR") && (!eurToGbpRate || eurToGbpRate <= 0)) {
+    alert("Please enter a valid exchange rate.");
+    return;
+  }
+
+  let result = `${validExpenses.length} valid rows`;
+  if (invalidRows.length) result += ` · ${invalidRows.length} rows need review`;
+  result += "\n\n";
+
+  let settlementsForCards = [];
+
+  if (settlementMode === "separate") {
+    const separateResult = calculateSeparateCurrencies(validExpenses);
+    result += separateResult.text;
+    settlementsForCards = separateResult.cards;
+  } else {
+    const singleResult = calculateSingleSettlementCurrency(validExpenses, settlementMode, eurToGbpRate);
+    result += singleResult.text;
+    settlementsForCards = singleResult.cards;
+  }
+
+  document.getElementById("output").textContent = result || "No valid expenses to calculate.";
+  renderSettlementCards(settlementsForCards);
+  autoSave();
+}
+
+function calculateSeparateCurrencies(validExpenses) {
+  const balancesByCurrency = {};
+
+  validExpenses.forEach(expense => {
+    if (!balancesByCurrency[expense.currency]) balancesByCurrency[expense.currency] = {};
+    addExpenseToBalances(expense, balancesByCurrency[expense.currency], expense.amount);
+  });
+
+  let text = "";
+  let cards = [];
+
+  Object.entries(balancesByCurrency).forEach(([currency, balances]) => {
+    text += `${currency} BALANCES\n`;
+
+    Object.entries(balances)
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([person, balance]) => {
+        text += `${person}: ${formatMoney(balance, currency)}\n`;
+      });
+
+    text += `\n${currency} SETTLEMENTS\n`;
+
+    const settlementData = getSettlementsData(balances, currency);
+    cards = cards.concat(settlementData);
+
+    text += settlementData.length
+      ? settlementData.map(s => `${s.from} → ${s.to}: ${formatMoney(s.amount, s.currency)}`).join("\n") + "\n"
+      : "Everyone is settled.\n";
+
+    text += "\n----------------------\n\n";
+  });
+
+  return { text, cards };
+}
+
+function calculateSingleSettlementCurrency(validExpenses, targetCurrency, eurToGbpRate) {
+  const balances = {};
+
+  validExpenses.forEach(expense => {
+    const convertedAmount = convertAmount(expense.amount, expense.currency, targetCurrency, eurToGbpRate);
+    addExpenseToBalances(expense, balances, convertedAmount);
+  });
+
+  let text = `Settlement currency: ${targetCurrency}\n`;
+  text += `Rate used: 1 EUR = £${eurToGbpRate.toFixed(4)}\n\n`;
+  text += `${targetCurrency} BALANCES\n`;
+
+  Object.entries(balances)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([person, balance]) => {
+      text += `${person}: ${formatMoney(balance, targetCurrency)}\n`;
+    });
+
+  const cards = getSettlementsData(balances, targetCurrency);
+
+  text += `\n${targetCurrency} SETTLEMENTS\n`;
+  text += cards.length
+    ? cards.map(s => `${s.from} → ${s.to}: ${formatMoney(s.amount, s.currency)}`).join("\n") + "\n"
+    : "Everyone is settled.\n";
+
+  return { text, cards };
+}
+
+function addExpenseToBalances(expense, balances, amountToUse) {
+  const share = amountToUse / expense.splitBetween.length;
+
+  if (!balances[expense.paidBy]) balances[expense.paidBy] = 0;
+  balances[expense.paidBy] += amountToUse;
+
+  expense.splitBetween.forEach(person => {
+    if (!balances[person]) balances[person] = 0;
+    balances[person] -= share;
+  });
+}
+
+function getSettlementsData(balances, currency) {
+  const creditors = [];
+  const debtors = [];
+
+  Object.entries(balances).forEach(([person, balance]) => {
+    const rounded = Math.round(balance * 100) / 100;
+    if (rounded > 0) creditors.push({ person, amount: rounded });
+    else if (rounded < 0) debtors.push({ person, amount: -rounded });
+  });
+
+  const settlements = [];
+  let i = 0;
+  let j = 0;
+
+  while (i < debtors.length && j < creditors.length) {
+    const amount = Math.min(debtors[i].amount, creditors[j].amount);
+
+    settlements.push({
+      from: debtors[i].person,
+      to: creditors[j].person,
+      amount,
+      currency
+    });
+
+    debtors[i].amount -= amount;
+    creditors[j].amount -= amount;
+
+    if (debtors[i].amount < 0.01) i++;
+    if (creditors[j].amount < 0.01) j++;
+  }
+
+  return settlements;
+}
+
+function renderSettlementCards(settlements) {
+  const box = document.getElementById("settlementCards");
+  box.innerHTML = "";
+
+  if (!settlements.length) {
+    box.innerHTML = `<div class="settlement-card">Everyone is settled. Suspiciously peaceful.</div>`;
+    return;
+  }
+
+  settlements.forEach(s => {
+    box.innerHTML += `
+      <div class="settlement-card">
+        <strong>${escapeHtml(s.from)} → ${escapeHtml(s.to)}</strong>
+        <div class="amount">${formatMoney(s.amount, s.currency)}</div>
+      </div>
+    `;
+  });
+}
+
+function formatMoney(amount, currency) {
+  const symbol = currency === "GBP" ? "£" : "€";
+  return `${symbol}${amount.toFixed(2)}`;
+}
+
+function saveTrip() {
+  autoSave();
+  alert("Trip saved locally.");
+}
+
+function autoSave() {
+  localStorage.setItem("holidaySplitterTripName", document.getElementById("tripName").value);
+  localStorage.setItem("holidaySplitterExpenses", JSON.stringify(expenses));
+  localStorage.setItem("holidaySplitterPeople", JSON.stringify(knownPeople));
+  localStorage.setItem("holidaySplitterSettlementMode", document.getElementById("settlementMode").value);
+  localStorage.setItem("holidaySplitterEurToGbpRate", document.getElementById("eurToGbpRate").value);
+}
+
+function loadTrip() {
+  const savedExpenses = localStorage.getItem("holidaySplitterExpenses");
+  const savedPeople = localStorage.getItem("holidaySplitterPeople");
+  const savedMode = localStorage.getItem("holidaySplitterSettlementMode");
+  const savedRate = localStorage.getItem("holidaySplitterEurToGbpRate");
+  const savedTripName = localStorage.getItem("holidaySplitterTripName");
+
+  if (!savedExpenses) {
+    alert("No trip found. Start by importing expenses.");
+    return;
+  }
+
+  expenses = JSON.parse(savedExpenses);
+  if (savedPeople) knownPeople = JSON.parse(savedPeople);
+  if (savedMode) document.getElementById("settlementMode").value = savedMode;
+  if (savedRate) document.getElementById("eurToGbpRate").value = savedRate;
+  if (savedTripName) document.getElementById("tripName").value = savedTripName;
+
+  renderAll();
+}
+
+function clearAll() {
+  if (confirm("Clear all expenses?")) {
+    expenses = [];
+    editingIndex = null;
+    renderAll();
+    renderSettlementCards([]);
+    document.getElementById("output").textContent = "Import or add expenses, review anything suspicious, then calculate.";
+    autoSave();
+  }
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+loadTrip();
+renderAll();
+</script>
+
+</body>
+</html>
